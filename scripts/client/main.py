@@ -21,4 +21,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import socket_handler
+# import socket_handler
+import gui
+
+gui.set_servers({'DM': lambda: gui.set_server_name('DM')})
+gui.set_channels({'#test': lambda: gui.set_channel_name('#test')})
+gui.main()
