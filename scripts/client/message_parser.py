@@ -24,11 +24,10 @@ SOFTWARE.
 
 
 def encode_message(server, channel, message):
-    return (server + '\n' + channel + '\n' + message).encode('utf-8')
+    return server + '\n' + channel + '\n' + message
 
 
 def decode_message(message):
-    message = message.decode('utf-8')
     server = message.split('\n')[0]
     channel = message.split('\n')[1]
     message = message.split('\n')[2]

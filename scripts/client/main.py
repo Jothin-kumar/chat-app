@@ -21,9 +21,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-# import socket_handler
+import socket_handler
+import message_parser
 import gui
 
+
+gui.set_server_name('DM')
+gui.set_channel_name('#home')
 gui.set_servers({'DM': lambda: gui.set_server_name('DM')})
-gui.set_channels({'#test': lambda: gui.set_channel_name('#test')})
+gui.set_channels({'#home': lambda: gui.set_channel_name('#home')})
+gui.set_send_message_command(lambda message:
+                             socket_handler.send(message_parser.encode_message(server=gui.get_server_name(),
+                                                                               channel=gui.get_channel_name(),
+                                                                               message=message))
+                             )
+
+
 gui.main()

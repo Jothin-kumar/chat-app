@@ -22,11 +22,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import tkinter as tk
+from tkinter.messagebox import showerror
 
 root = tk.Tk()
 root.title("Chat application")
 root.minsize(width=1000, height=500)
 main = root.mainloop
+
+connection_label = tk.Label(master=root, text='Connected', bg='green', fg='snow')
+
+
+def set_connected():
+    connection_label['text'] = 'Connected'
+    connection_label['bg'] = 'green'
+    connection_label['fg'] = 'snow'
+
+
+def set_disconnected():
+    connection_label['text'] = 'Not connected - Restart app after connecting'
+    connection_label['bg'] = 'orange'
+    connection_label['fg'] = 'snow'
+
+
+connection_label.pack(side=tk.TOP, fill=tk.X)
 
 servers_and_channels = tk.Frame(root, bg='black')
 servers = tk.Frame(servers_and_channels, width=25, bg='gray15')
@@ -57,6 +75,10 @@ def set_server_name(text):
     server_name_label.config(text=text)
 
 
+def get_server_name():
+    return server_name_label.cget("text")
+
+
 server_name_label.pack(side=tk.TOP, fill=tk.X)
 channels.pack(side=tk.LEFT, fill=tk.Y)
 servers_and_channels.pack(side=tk.LEFT, fill=tk.Y)
@@ -67,6 +89,10 @@ channel_name_label = tk.Label(message_area, bg='gray20', fg='snow', text="Channe
 
 def set_channel_name(text):
     channel_name_label.config(text=text)
+
+
+def get_channel_name():
+    return channel_name_label.cget("text")
 
 
 channel_name_label.pack(side=tk.TOP, fill=tk.X)
@@ -98,10 +124,17 @@ message_input.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
 
 def send_message():
-    msg = message_input.get()
-    outgoing_message(msg)
-    message_input.delete(0, tk.END)
-    send_message_command(msg)
+    if connection_label['text'] == 'Connected':
+        msg = message_input.get()
+        outgoing_message(msg)
+        message_input.delete(0, tk.END)
+        send_message_command(msg)
+    else:
+        showerror(
+            title='Not connected',
+            message='Your message cannot be sent because, you are not connected.'
+                    'Please restart the app after connecting to the internet and try again.'
+        )
 
 
 def send_message_command(msg):

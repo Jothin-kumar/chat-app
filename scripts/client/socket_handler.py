@@ -23,10 +23,21 @@ SOFTWARE.
 """
 import socket
 import threading
+import message_parser
+from datetime import datetime
+import time
+import gui
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port = 12345
-s.connect(('0.0.0.0', port))
+while True:
+    try:
+        s.connect(('0.0.0.0', port))
+        break
+    except ConnectionRefusedError:
+        gui.set_disconnected()
+    time.sleep(1)
+last_connection_verified = datetime.now().timestamp() - 15
 
 
 def send(msg):
@@ -37,21 +48,36 @@ def receive():
     return s.recv(1024).decode()
 
 
-def on_new_message(msg):
-    print(msg)
+def on_new_message(message):
+    if message == 'you are connected':
+        global last_connection_verified
+        last_connection_verified = datetime.now().timestamp()
+    else:
+        server, channel, incoming_message = message_parser.decode_message(message)
+
+
+def verify_connection_forever():
+    while True:
+        try:
+            if datetime.now().timestamp() - last_connection_verified > 9:
+                gui.set_disconnected()
+            else:
+                gui.set_connected()
+            time.sleep(1)
+        except:
+            pass
 
 
 def check_for_new_messages():
     while True:
-        msg = receive()
-        if msg == '\n':
-            continue
-        on_new_message(msg)
-
-
-def configure_on_new_message(func):
-    global on_new_message
-    on_new_message = func
+        try:
+            msg = receive()
+            if msg == '\n':
+                continue
+            on_new_message(msg)
+        except:
+            pass
 
 
 threading.Thread(target=check_for_new_messages).start()
+threading.Thread(target=verify_connection_forever).start()
