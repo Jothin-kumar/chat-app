@@ -49,7 +49,9 @@ def check_for_new_messages():
         on_new_message(msg)
 
 
+def configure_on_new_message(func):
+    global on_new_message
+    on_new_message = func
+
+
 threading.Thread(target=check_for_new_messages).start()
-while True:
-    msg = input()
-    send(msg)

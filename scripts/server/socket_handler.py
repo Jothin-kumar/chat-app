@@ -51,7 +51,13 @@ def on_new_client(client):
     threading.Thread(target=receive_message).start()
 
 
-while True:
-    conn, addr = s.accept()
-    print('Got connection from', addr)
-    on_new_client(conn)
+def configure_on_new_message(func):
+    global on_new_message
+    on_new_message = func
+
+
+def start_server():
+    while True:
+        conn, addr = s.accept()
+        print('Got connection from', addr)
+        on_new_client(conn)
