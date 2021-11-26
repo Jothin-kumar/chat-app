@@ -26,9 +26,9 @@ import message_parser
 import gui
 
 
-gui.set_server_name('DM')
+gui.set_server_name('Direct message')
 gui.set_channel_name('#home')
-gui.set_servers({'DM': lambda: gui.set_server_name('DM')})
+gui.set_servers({'Direct message': lambda: gui.set_server_name('Direct Message')})
 gui.set_channels({'#home': lambda: gui.set_channel_name('#home')})
 gui.set_send_message_command(lambda message:
                              socket_handler.send(message_parser.encode_message(server=gui.get_server_name(),
