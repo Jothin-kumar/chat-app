@@ -21,3 +21,35 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import socket
+import threading
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+port = 12345
+s.connect(('0.0.0.0', port))
+
+
+def send(msg):
+    s.send(msg.encode())
+
+
+def receive():
+    return s.recv(1024).decode()
+
+
+def on_new_message(msg):
+    print(msg)
+
+
+def check_for_new_messages():
+    while True:
+        msg = receive()
+        if msg == '\n':
+            continue
+        on_new_message(msg)
+
+
+threading.Thread(target=check_for_new_messages).start()
+while True:
+    msg = input()
+    send(msg)

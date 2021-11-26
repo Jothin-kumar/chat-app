@@ -21,3 +21,37 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+import socket
+import time
+import threading
+
+s = socket.socket()
+port = 12345
+s.bind(('', port))
+s.listen(5)
+
+
+def on_new_message(message):
+    print(message)
+
+
+def on_new_client(client):
+    def send_connected_message():
+        while True:
+            client.send(b'you are connected')
+            time.sleep(10)
+
+    def receive_message():
+        while True:
+            message = client.recv(1024)
+            if message:
+                on_new_message(message)
+
+    threading.Thread(target=send_connected_message).start()
+    threading.Thread(target=receive_message).start()
+
+
+while True:
+    conn, addr = s.accept()
+    print('Got connection from', addr)
+    on_new_client(conn)
