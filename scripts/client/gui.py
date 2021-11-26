@@ -125,7 +125,7 @@ message_input.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
 def send_message():
     if connection_label['text'] == 'Connected':
-        msg = message_input.get().strip()
+        msg = message_input.get().strip().strip('\n')
         if msg:
             outgoing_message(msg)
             message_input.delete(0, tk.END)
