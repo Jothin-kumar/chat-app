@@ -39,7 +39,7 @@ def set_connected():
 
 
 def set_disconnected():
-    connection_label['text'] = 'Not connected - Restart app after connecting'
+    connection_label['text'] = 'Not connected'
     connection_label['bg'] = 'orange'
     connection_label['fg'] = 'snow'
 
@@ -133,7 +133,7 @@ def send_message():
         showerror(
             title='Not connected',
             message='Your message cannot be sent because, you are not connected.'
-                    'Please restart the app after connecting to the internet and try again.'
+                    'Please connect to the internet and try again.'
         )
 
 

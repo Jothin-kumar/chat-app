@@ -30,13 +30,21 @@ import gui
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port = 12345
-while True:
-    try:
-        s.connect(('0.0.0.0', port))
-        break
-    except ConnectionRefusedError:
-        gui.set_disconnected()
-    time.sleep(1)
+
+
+def connect_forever():
+    while True:
+        if gui.connection_label['text'] == 'Not connected':
+            try:
+                s.connect(('0.0.0.0', port))
+                gui.set_connected()
+            except ConnectionRefusedError:
+                pass
+            except OSError:
+                pass
+        time.sleep(5)
+
+
 last_connection_verified = datetime.now().timestamp() - 15
 
 
@@ -63,7 +71,7 @@ def verify_connection_forever():
                 gui.set_disconnected()
             else:
                 gui.set_connected()
-            time.sleep(1)
+            time.sleep(10)
         except:
             pass
 
@@ -79,5 +87,6 @@ def check_for_new_messages():
             pass
 
 
+threading.Thread(target=connect_forever).start()
 threading.Thread(target=check_for_new_messages).start()
 threading.Thread(target=verify_connection_forever).start()
