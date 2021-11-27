@@ -139,6 +139,7 @@ def send_message():
 
 
 def send_message_command(msg):
+    # Command to send a message to the server. can be set using the set_send_message_command method.
     pass
 
 
