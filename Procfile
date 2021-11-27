@@ -1,1 +1,0 @@
-web: python scripts/server/main.py

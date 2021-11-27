@@ -1,7 +1,0 @@
-{
-  "name": "Chat app test server",
-  "description": "Server to test chat app",
-  "image": "heroku/python",
-  "repository": "https://github.com/Jothin-kumar/chat-app",
-  "keywords": ["python"]
-}
