@@ -1,1 +1,1 @@
-web: gunicorn scripts.server.main
+web: python scripts/server/main.py
