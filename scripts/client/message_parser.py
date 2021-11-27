@@ -23,12 +23,11 @@ SOFTWARE.
 """
 
 
-def encode_message(server, channel, message):
-    return server + '\n' + channel + '\n' + message
+def encode_message(channel, message):
+    return channel + '\n' + message
 
 
 def decode_message(message):
-    server = message.split('\n')[0]
-    channel = message.split('\n')[1]
-    message = message.split('\n')[2]
-    return server, channel, message
+    channel = message.split('\n')[0]
+    message = message.split('\n')[1]
+    return channel, message

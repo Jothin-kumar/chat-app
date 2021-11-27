@@ -26,7 +26,7 @@ import time
 import threading
 
 s = socket.socket()
-port = 12345
+port = 6667
 s.bind(('', port))
 s.listen(5)
 
@@ -38,8 +38,14 @@ def on_new_message(message):
 def on_new_client(client):
     def send_connected_message():
         while True:
-            client.send(b'you are connected')
-            time.sleep(10)
+            sleep = True
+            try:
+                client.send(b'you are connected')
+            except BrokenPipeError:
+                sleep = False
+                time.sleep(1)
+            if sleep:
+                time.sleep(10)
 
     def receive_message():
         while True:
