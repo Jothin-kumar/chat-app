@@ -27,15 +27,20 @@ Repository link: https://github.com/Jothin-kumar/chat-app
 import socket
 import time
 import threading
+import message_parser
 
 s = socket.socket()
-port = 12354
+port = 1265
 s.bind(('', port))
 s.listen(5)
+clients = []
 
 
-def on_new_message(message, send_command):
-    print(message)
+def on_new_message(msg, sender):
+    channel, message = message_parser.decode_message(msg)
+    for client in clients:
+        if client != sender:
+            client.send(message_parser.encode_message(channel, message))
 
 
 def on_new_client(client):
@@ -47,22 +52,25 @@ def on_new_client(client):
             except BrokenPipeError:
                 sleep = False
                 time.sleep(1)
+            except ConnectionResetError:
+                clients.remove(client)
+                break
             if sleep:
                 time.sleep(10)
 
     def receive_message():
         while True:
-            message = client.recv(1024)
-            if message:
-                on_new_message(message, client.send)
+            try:
+                message = client.recv(1024)
+                if message:
+                    on_new_message(message, client)
+            except ConnectionResetError:
+                clients.remove(client)
+                break
 
     threading.Thread(target=send_connected_message).start()
     threading.Thread(target=receive_message).start()
-
-
-def configure_on_new_message(func):
-    global on_new_message
-    on_new_message = func
+    clients.append(client)
 
 
 def start_server():

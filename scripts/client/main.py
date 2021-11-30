@@ -47,8 +47,6 @@ class Server:
         self.name = name
 
         def on_new_message(channel, message):
-            print(channel)
-            print(gui.get_channel_name())
             if channel == gui.get_channel_name():
                 gui.incoming_message(message)
 
@@ -67,7 +65,7 @@ class Server:
         self.button = button
 
 
-servers = []
+servers = [Server("localhost", 1265, "Server 1", [Channel("Channel 1"), Channel("Channel 2")])]
 gui.set_servers(servers)
 servers[0].set()
 servers[0].channels[0].set()

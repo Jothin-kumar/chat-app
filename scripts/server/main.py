@@ -25,13 +25,6 @@ Author: Jothin kumar (https://jothin-kumar.github.io)
 Repository link: https://github.com/Jothin-kumar/chat-app
 """
 import socket_handler
-import message_parser
 
 
-def on_new_message(message, send_command):
-    channel, message = message_parser.decode_message(message)
-    send_command(message_parser.encode_message(channel, f'Server received: {message}'))
-
-
-socket_handler.configure_on_new_message(on_new_message)
 socket_handler.start_server()
