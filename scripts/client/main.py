@@ -67,10 +67,7 @@ class Server:
         self.button = button
 
 
-servers = [
-    Server('localhost', 12354, 'localhost', [Channel('#general'), Channel('#general-2')]),
-    Server('bjothin.pythonanywhere.com', 80, 'My server', [Channel('#general'), Channel('#general-2')]),
-]
+servers = []
 gui.set_servers(servers)
 servers[0].set()
 servers[0].channels[0].set()
