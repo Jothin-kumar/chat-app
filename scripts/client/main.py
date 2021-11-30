@@ -42,7 +42,14 @@ class Server:
         self.host = host
         self.port = port
         self.name = name
-        self.socket = socket_handler.ServerConnection(self.host, self.port)
+
+        def on_new_message(channel, message):
+            print(channel)
+            print(gui.get_channel_name())
+            if channel == gui.get_channel_name():
+                gui.incoming_message(message)
+
+        self.socket = socket_handler.ServerConnection(self.host, self.port, on_new_message)
         self.channels = channels
         self.send = self.socket.send
         self.button = tkinter.Button

@@ -30,11 +30,12 @@ import tkinter
 
 
 class ServerConnection:
-    def __init__(self, host, port):
+    def __init__(self, host, port, on_new_message_command):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.host = host
         self.port = port
         self.button = tkinter.Button
+        self.on_new_message_command = on_new_message_command
         self.last_connection_verified = datetime.now().timestamp() - 15
         threading.Thread(target=self.connect_forever).start()
         threading.Thread(target=self.check_for_new_messages).start()
@@ -80,7 +81,8 @@ class ServerConnection:
         if message == 'you are connected':
             self.last_connection_verified = datetime.now().timestamp()
         else:
-            server, channel, incoming_message = message_parser.decode_message(message)
+            channel, incoming_message = message_parser.decode_message(message)
+            self.on_new_message_command(channel, incoming_message)
 
     def verify_connection_forever(self):
         while True:
