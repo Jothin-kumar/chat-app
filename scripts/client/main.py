@@ -58,7 +58,7 @@ class Server:
 
 
 servers = [
-    Server('localhost', 6567, 'localhost', [Channel('#general'), Channel('#general-2')]),
+    Server('localhost', 12354, 'localhost', [Channel('#general'), Channel('#general-2')]),
     Server('bjothin.pythonanywhere.com', 80, 'My server', [Channel('#general'), Channel('#general-2')]),
 ]
 gui.set_servers(servers)
