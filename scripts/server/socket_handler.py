@@ -26,12 +26,12 @@ import time
 import threading
 
 s = socket.socket()
-port = 6667
+port = 12354
 s.bind(('', port))
 s.listen(5)
 
 
-def on_new_message(message):
+def on_new_message(message, send_command):
     print(message)
 
 
@@ -51,7 +51,7 @@ def on_new_client(client):
         while True:
             message = client.recv(1024)
             if message:
-                on_new_message(message)
+                on_new_message(message, client.send)
 
     threading.Thread(target=send_connected_message).start()
     threading.Thread(target=receive_message).start()

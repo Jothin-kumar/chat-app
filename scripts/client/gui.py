@@ -29,46 +29,46 @@ root.title("Chat application")
 root.minsize(width=1000, height=500)
 main = root.mainloop
 
-connection_label = tk.Label(master=root, text='Connected', bg='green', fg='snow')
-
-
-def set_connected():
-    connection_label['text'] = 'Connected'
-    connection_label['bg'] = 'green'
-    connection_label['fg'] = 'snow'
-
-
-def set_disconnected():
-    connection_label['text'] = 'Not connected'
-    connection_label['bg'] = 'orange'
-    connection_label['fg'] = 'snow'
-
-
-connection_label.pack(side=tk.TOP, fill=tk.X)
-
 servers_and_channels = tk.Frame(root, bg='black')
 servers = tk.Frame(servers_and_channels, width=25, bg='gray15')
 
 
-def set_servers(server_names_and_command: dict):
-    for server in server_names_and_command.keys():
-        tk.Button(servers, text=server, command=server_names_and_command[server]).pack(side=tk.TOP, anchor=tk.W,
-                                                                                       padx=20, pady=10)
+def set_servers(servers_: list):
+    for server in servers_:
+        button = tk.Button(servers, text=server.name, command=server.set)
+        button.pack(side=tk.TOP, anchor=tk.W, padx=20, pady=10)
+        server.configure(button)
+
+
+def get_server_by_name_command(name):
+    # Command to get a server object by name. can be set using the set_get_server_by_name_command method.
+    pass
+
+
+def set_get_server_by_name_command(command):
+    global get_server_by_name_command
+    get_server_by_name_command = command
 
 
 profile_button = tk.Button(servers, text="Profile", bg='gray15', fg='white', font=('Helvetica', 15))
 profile_button.pack(side=tk.TOP, fill=tk.X)
 servers.pack(side=tk.LEFT, fill=tk.Y)
-channels = tk.Frame(servers_and_channels, width=30, bg='gray17')
+channels_frame = tk.Frame(servers_and_channels, width=30, bg='gray17')
+channels = []
 
 
-def set_channels(channel_names_and_command: dict):
-    for channel in channel_names_and_command.keys():
-        tk.Button(channels, text=channel, command=channel_names_and_command[channel]).pack(side=tk.TOP, anchor=tk.W,
-                                                                                           padx=20, pady=10, fill=tk.X)
+def set_channels(channel_names_and_command: list):
+    global channels
+    for channel in channels:
+        channel.pack_forget()
+    channels = []
+    for channel in channel_names_and_command:
+        button = tk.Button(channels_frame, text=channel.name, command=channel.set)
+        button.pack(side=tk.TOP, anchor=tk.W, padx=20, pady=10, fill=tk.X)
+        channels.append(button)
 
 
-server_name_label = tk.Label(channels, text="Server", bg='gray15', fg='white', font=('Helvetica', 25), width=15)
+server_name_label = tk.Label(channels_frame, text="Server", bg='gray15', fg='white', font=('Helvetica', 25), width=15)
 
 
 def set_server_name(text):
@@ -80,7 +80,7 @@ def get_server_name():
 
 
 server_name_label.pack(side=tk.TOP, fill=tk.X)
-channels.pack(side=tk.LEFT, fill=tk.Y)
+channels_frame.pack(side=tk.LEFT, fill=tk.Y)
 servers_and_channels.pack(side=tk.LEFT, fill=tk.Y)
 
 message_area = tk.Frame(root)
@@ -98,16 +98,25 @@ def get_channel_name():
 channel_name_label.pack(side=tk.TOP, fill=tk.X)
 chats_frame = tk.Frame(message_area, bg='gray25')
 messages_frame = tk.Frame(chats_frame, bg='gray25')
+message_labels = []
 
 
 def incoming_message(message):
     message_label = tk.Label(messages_frame, bg='gray20', fg='snow', text=message, font=("Helvetica", 15))
     message_label.pack(side=tk.TOP, anchor=tk.W, padx=20, pady=10)
+    message_labels.append(message_label)
 
 
 def outgoing_message(message):
     message_label = tk.Label(messages_frame, bg='gray20', fg='snow', text=message, font=("Helvetica", 15))
     message_label.pack(side=tk.TOP, anchor=tk.E, padx=20, pady=10)
+    message_labels.append(message_label)
+
+
+def clear_messages():
+    for message_label in message_labels:
+        message_label.pack_forget()
+    message_labels.clear()
 
 
 messages_frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -124,7 +133,7 @@ message_input.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
 
 def send_message():
-    if connection_label['text'] == 'Connected':
+    if get_server_by_name_command(get_server_name()).button['bg'] == 'green':
         msg = message_input.get().strip().strip('\n')
         if msg:
             outgoing_message(msg)

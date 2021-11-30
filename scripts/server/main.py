@@ -22,6 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import socket_handler
+import message_parser
 
 
+def on_new_message(message, send_command):
+    channel, message = message_parser.decode_message(message)
+    send_command(message_parser.encode_message(channel, f'Server received: {message}'))
+
+
+socket_handler.configure_on_new_message(on_new_message)
 socket_handler.start_server()

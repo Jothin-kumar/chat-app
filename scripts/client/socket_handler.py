@@ -26,67 +26,90 @@ import threading
 import message_parser
 from datetime import datetime
 import time
-import gui
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-port = 12345
+import tkinter
 
 
-def connect_forever():
-    while True:
-        if gui.connection_label['text'] == 'Not connected':
+class ServerConnection:
+    def __init__(self, host, port):
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.host = host
+        self.port = port
+        self.button = tkinter.Button
+        self.last_connection_verified = datetime.now().timestamp() - 15
+        threading.Thread(target=self.connect_forever).start()
+        threading.Thread(target=self.check_for_new_messages).start()
+        threading.Thread(target=self.verify_connection_forever).start()
+
+    def configure(self, button):
+        self.button = button
+        self.button['bg'] = 'yellow'
+
+    def connect_forever(self):
+        while True:
             try:
-                s.connect(('0.0.0.0', port))
-                gui.set_connected()
+                if self.button['bg'] == 'yellow':
+                    self.socket.connect((self.host, self.port))
+                    self.button['bg'] = 'green'
             except ConnectionRefusedError:
                 pass
             except OSError:
                 pass
-        time.sleep(5)
-
-
-last_connection_verified = datetime.now().timestamp() - 15
-
-
-def send(msg):
-    s.send(msg.encode())
-
-
-def receive():
-    return s.recv(1024).decode()
-
-
-def on_new_message(message):
-    if message == 'you are connected':
-        global last_connection_verified
-        last_connection_verified = datetime.now().timestamp()
-    else:
-        server, channel, incoming_message = message_parser.decode_message(message)
-
-
-def verify_connection_forever():
-    while True:
-        try:
-            if datetime.now().timestamp() - last_connection_verified > 9:
-                gui.set_disconnected()
-            else:
-                gui.set_connected()
+            except TypeError:
+                pass
+            except RuntimeError:
+                break
             time.sleep(10)
-        except:
-            pass
 
+    def send(self, msg):
+        message_sent = False
+        while not message_sent:
+            try:
+                self.socket.send(msg.encode())
+                message_sent = True
+            except BrokenPipeError:
+                self.socket.close()
+                self.button['bg'] = 'yellow'
+                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.socket.connect((self.host, self.port))
+                self.button['bg'] = 'green'
 
-def check_for_new_messages():
-    while True:
-        try:
-            msg = receive()
-            if msg == '\n':
-                continue
-            on_new_message(msg)
-        except:
-            pass
+    def receive(self):
+        return self.socket.recv(1024).decode()
 
+    def on_new_message(self, message):
+        if message == 'you are connected':
+            self.last_connection_verified = datetime.now().timestamp()
+        else:
+            server, channel, incoming_message = message_parser.decode_message(message)
 
-threading.Thread(target=connect_forever).start()
-threading.Thread(target=check_for_new_messages).start()
-threading.Thread(target=verify_connection_forever).start()
+    def verify_connection_forever(self):
+        while True:
+            try:
+                if datetime.now().timestamp() - self.last_connection_verified > 9:
+                    self.button['bg'] = 'yellow'
+                    try:
+                        self.socket.connect((self.host, self.port))
+                        self.button['bg'] = 'green'
+                    except ConnectionRefusedError:
+                        pass
+                    except OSError:
+                        self.button['bg'] = 'green'
+                else:
+                    self.button['bg'] = 'green'
+                time.sleep(10)
+            except RuntimeError:
+                break
+            except:
+                pass
+
+    def check_for_new_messages(self):
+        while True:
+            try:
+                msg = self.receive()
+                if msg == '\n':
+                    continue
+                self.on_new_message(msg)
+            except RuntimeError:
+                break
+            except:
+                pass
