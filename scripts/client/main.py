@@ -28,6 +28,7 @@ import tkinter
 
 import socket_handler
 import message_parser
+import messages
 import gui
 
 
@@ -38,6 +39,12 @@ class Channel:
     def set(self):
         gui.set_channel_name(self.name)
         gui.clear_messages()
+        for message in messages.get_messages():
+            if message.server == gui.get_server_name() and message.channel == self.name:
+                if message.type_ == "incoming":
+                    gui.incoming_message(message.msg)
+                elif message.type_ == "outgoing":
+                    gui.outgoing_message(message.msg)
 
 
 class Server:
@@ -47,7 +54,8 @@ class Server:
         self.name = name
 
         def on_new_message(channel, message):
-            if channel == gui.get_channel_name():
+            messages.Message(server=self.name, channel=channel, message=message, type_="incoming")
+            if self.name == gui.get_server_name() and channel == gui.get_channel_name():
                 gui.incoming_message(message)
 
         self.socket = socket_handler.ServerConnection(self.host, self.port, on_new_message)
@@ -78,11 +86,14 @@ def get_current_server_by_name(name):
     return None
 
 
-gui.set_send_message_command(lambda message:
-                             get_current_server_by_name(gui.get_server_name()).send(message_parser.encode_message(
-                                 channel=gui.get_channel_name(),
-                                 message=message))
-                             )
+def send_msg(message):
+    server = get_current_server_by_name(gui.get_server_name())
+    channel = gui.get_channel_name()
+    server.send(message_parser.encode_message(channel=channel, message=message))
+    messages.Message(server=server.name, channel=channel, message=message, type_="outgoing")
+
+
+gui.set_send_message_command(send_msg)
 gui.set_get_server_by_name_command(get_current_server_by_name)
 
 gui.main()
